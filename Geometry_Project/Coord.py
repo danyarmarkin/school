@@ -2,7 +2,7 @@ from tkinter import *
 
 
 class Grid:
-    width = 40
+    width = 30
     height = 30
     size = 20
     frame = None
@@ -20,25 +20,28 @@ class Grid:
         self.canvas = Canvas(self.frame)
 
     def drawGrid(self):
-        self.canvas.config(height=self.size * self.height, width=self.size*self.width)
+        self.canvas.config(height=self.size * self.height, width=self.size * self.width)
 
-        for i in range(self.size, self.size * (self.width + 1), self.size):
-            self.canvas.create_line(i, 0, i, self.size*self.height)
+        for i in range(0, self.size * (self.width + 1), self.size):
+            self.canvas.create_line(i, 0, i, self.size * self.height)
 
-        for i in range(self.size, self.size * (self.height + 1), self.size):
-            self.canvas.create_line(0, i, self.size*self.width, i)
+        for i in range(0, self.size * (self.height + 1), self.size):
+            self.canvas.create_line(0, i, self.size * self.width, i)
 
         self.canvas.pack()
 
     def drawAxis(self):
         halfW = round(self.size * self.width / 2)
         halfH = round(self.size * self.height / 2)
-        print(halfW, halfH)
         self.canvas.create_line(0, halfH, halfW * 2, halfH, arrow=LAST, width=2)  # ox
         self.canvas.create_line(halfW, 0, halfW, halfH * 2, arrow=FIRST, width=2)  # oy
 
     def addDot(self, dot):
         self.dots.append(dot)
+        self.drawDots()
+
+    def addDots(self, dots):
+        self.dots += dots
         self.drawDots()
 
     def clear(self):
