@@ -9,7 +9,11 @@ from random import random
 
 class WorkSpace(Frame):
 
-    def clear(self):
+
+    def clear(self, grid):
+        grid.canvas.unbind('<Button-1>')
+        grid.canvas.unbind('<Motion>')
+        grid.drawDots()
         for child in self.winfo_children():
             child.destroy()
         self.config(width=400, height=720)
@@ -19,7 +23,7 @@ class WorkSpace(Frame):
         self.config(width=400, height=720)
 
     def addDotsWithMouse(self, grid):
-        self.clear()
+        self.clear(grid)
         def onClick(event):
             x = round((event.x - grid.width * grid.size / 2) / grid.size, 1)
             y = round((grid.height * grid.size / 2 - event.y) / grid.size, 1)
@@ -34,7 +38,7 @@ class WorkSpace(Frame):
         button.grid(row=0, column=0)
 
     def addDotWithKeyboard(self, grid):
-        self.clear()
+        self.clear(grid)
         helpLabel = Label(self, text="Add coordinates with keyboard X, Y")
         inputX = Entry(self)
         inputY = Entry(self)
@@ -49,7 +53,7 @@ class WorkSpace(Frame):
         enter.grid(row=3, column=0)
 
     def addDotWithRandom(self, grid):
-        self.clear()
+        self.clear(grid)
         helpLabel = Label(self, text="Add amounts of dots")
         input = Entry(self)
 
@@ -77,7 +81,7 @@ class WorkSpace(Frame):
         grid.addDots(dots)
 
     def showDots(self, grid):
-        self.clear()
+        self.clear(grid)
         text = ""
         for line in [str(i.x) + " " + str(i.y) + "\n" for i in grid.dots]:
             text += line
@@ -87,7 +91,7 @@ class WorkSpace(Frame):
         scroll.grid(row=0, column=0)
 
     def writeDotsToFile(self, grid):
-        self.clear()
+        self.clear(grid)
         helpLabel = Label(self, text="File name")
         v = StringVar()
         v.set("output.txt")
@@ -103,3 +107,30 @@ class WorkSpace(Frame):
         helpLabel.grid(row=0, column=0)
         input.grid(row=1, column=0)
         enter.grid(row=2, column=0)
+
+    def editDots(self, grid):
+        self.clear(grid)
+
+        pre = 0
+        def onMotion(event):
+            x = round((event.x - grid.width * grid.size / 2) / grid.size, 1)
+            y = round((grid.height * grid.size / 2 - event.y) / grid.size, 1)
+            dot = grid.findDot(x, y)
+            print(x, y)
+            print(dot)
+            if dot is None:
+                grid.drawDots()
+            else:
+                print("find")
+                grid.selectDot(dot.x, dot.y)
+
+        grid.canvas.bind('<Motion>', onMotion)
+
+
+        def unbind():
+            grid.canvas.unbind('<Motion>')
+
+        grid.canvas.bind('<Motion>', onMotion)
+        button = Button(self, text="Stop mouse binding", command=unbind)
+        button.grid(row=0, column=0)
+

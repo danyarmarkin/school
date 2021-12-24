@@ -7,7 +7,7 @@ class Grid:
     size = 20
     frame = None
     canvas = None
-    dots =[]
+    dots = []
 
     def x(self, x):
         return x + self.width / 2
@@ -47,6 +47,35 @@ class Grid:
     def clear(self):
         self.dots = []
         self.drawDots()
+
+    def findDot(self, x, y):
+        m = 10 ** 5
+        d = None
+        for dot in self.dots:
+            r = (dot.x - x) ** 2 + (dot.y - y) ** 2
+            if r < m:
+                m = r
+                d = dot
+        if m >= 0.7:
+            return None
+        return d
+
+    def selectDot(self, x, y):
+        self.canvas.delete("all")
+        self.drawGrid()
+        self.drawAxis()
+
+        for dot in self.dots:
+            r = 3
+            color = "red"
+            if dot.x == x and dot.y == y:
+                r = 5
+                color = "blue"
+            self.canvas.create_oval(self.x(dot.x) * self.size - r,
+                                    self.y(dot.y) * self.size - r,
+                                    self.x(dot.x) * self.size + r,
+                                    self.y(dot.y) * self.size + r,
+                                    fill=color)
 
     def drawDots(self):
         self.canvas.delete("all")
