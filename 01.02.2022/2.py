@@ -1,0 +1,1 @@
+print(max(list(filter(lambda x: 1600 <= x <= 1800, list(map(int, input().split()))))))

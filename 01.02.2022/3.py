@@ -1,0 +1,1 @@
+print((lambda a: min(a) if len(a) > 0 else "Not found")(list(filter(lambda x: x > 0 and x % 2 == 0, map(int, input().split())))))

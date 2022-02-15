@@ -8,6 +8,7 @@ class Grid:
     frame = None
     canvas = None
     dots = []
+    selected_dot = None
 
     def x(self, x):
         return x + self.width / 2
@@ -67,7 +68,7 @@ class Grid:
 
         for dot in self.dots:
             r = 3
-            color = "red"
+            color = dot.color
             if dot.x == x and dot.y == y:
                 r = 5
                 color = "blue"
@@ -78,6 +79,9 @@ class Grid:
                                     fill=color)
 
     def drawDots(self):
+        if self.selected_dot is not None:
+            self.selectDot(self.selected_dot.x, self.selected_dot.y)
+            return
         self.canvas.delete("all")
         self.drawGrid()
         self.drawAxis()
@@ -87,4 +91,4 @@ class Grid:
                                     self.y(dot.y) * self.size - r,
                                     self.x(dot.x) * self.size + r,
                                     self.y(dot.y) * self.size + r,
-                                    fill="red")
+                                    fill=dot.color)
