@@ -1,4 +1,5 @@
 from tkinter import *
+from task import *
 
 
 class Grid:
@@ -24,10 +25,10 @@ class Grid:
         self.canvas.config(height=self.size * self.height, width=self.size * self.width)
 
         for i in range(0, self.size * (self.width + 1), self.size):
-            self.canvas.create_line(i, 0, i, self.size * self.height)
+            self.canvas.create_line(i, 0, i, self.size * self.height, fill="#cccccc")
 
         for i in range(0, self.size * (self.height + 1), self.size):
-            self.canvas.create_line(0, i, self.size * self.width, i)
+            self.canvas.create_line(0, i, self.size * self.width, i, fill="#cccccc")
 
         self.canvas.pack()
 
@@ -92,3 +93,45 @@ class Grid:
                                     self.x(dot.x) * self.size + r,
                                     self.y(dot.y) * self.size + r,
                                     fill=dot.color)
+
+    def solutions(self):
+        task = Task(self.dots)
+        triangles = task.prepareTriangles()
+        dots = task.getDots(triangles)
+        res_triangles = []
+
+        for triangle in triangles:
+            d1 = triangle.dots[0]
+            d2 = triangle.dots[1]
+            d3 = triangle.dots[2]
+            if dots[d1] >= 2:
+                res_triangles.append(triangle)
+                continue
+            if dots[d2] >= 2:
+                res_triangles.append(triangle)
+                continue
+            if dots[d3] >= 2:
+                res_triangles.append(triangle)
+                continue
+
+
+        for triangle in res_triangles:
+            print(triangle)
+            d1 = triangle.dots[0]
+            d2 = triangle.dots[1]
+            d3 = triangle.dots[2]
+            self.canvas.create_line(self.x(d1.x) * self.size,
+                                    self.y(d1.y) * self.size,
+                                    self.x(d2.x) * self.size,
+                                    self.y(d2.y) * self.size,
+                                    fill="green")
+            self.canvas.create_line(self.x(d1.x) * self.size,
+                                    self.y(d1.y) * self.size,
+                                    self.x(d3.x) * self.size,
+                                    self.y(d3.y) * self.size,
+                                    fill="green")
+            self.canvas.create_line(self.x(d3.x) * self.size,
+                                    self.y(d3.y) * self.size,
+                                    self.x(d2.x) * self.size,
+                                    self.y(d2.y) * self.size,
+                                    fill="green")
