@@ -3,17 +3,19 @@ from task import *
 
 
 class Grid:
-    width = 30
-    height = 30
-    size = 20
+    width = 30  # количество клеток по горизонтали
+    height = 30  # количество клеток по вертикали
+    size = 20  # размер ячейки
     frame = None
     canvas = None
     dots = []
     selected_dot = None
 
+    # перевод х
     def x(self, x):
         return x + self.width / 2
 
+    # перевод у
     def y(self, y):
         return self.height / 2 - y
 
@@ -21,35 +23,56 @@ class Grid:
         self.frame = frame
         self.canvas = Canvas(self.frame)
 
+    # рисование сетки
     def drawGrid(self):
+        halfW = round(self.size * self.width / 2)
+        halfH = round(self.size * self.height / 2)
+
         self.canvas.config(height=self.size * self.height, width=self.size * self.width)
 
-        for i in range(0, self.size * (self.width + 1), self.size):
+        for i in range(0, self.size * (self.width + 0), self.size):
             self.canvas.create_line(i, 0, i, self.size * self.height, fill="#cccccc")
+            self.canvas.create_text(i - self.size / 4,
+                                    halfH + self.size / 4,
+                                    text=str(int(i / self.size - self.width / 2)),
+                                    font="Verdana 7")
 
-        for i in range(0, self.size * (self.height + 1), self.size):
+        for i in range(0, self.size * (self.height + 0), self.size):
             self.canvas.create_line(0, i, self.size * self.width, i, fill="#cccccc")
+            if i in [self.size * self.height / 2, 0]:
+                continue
+            self.canvas.create_text(halfW - self.size / 3,
+                                    i + self.size / 4,
+                                    text=str(int(-i / self.size + self.width / 2)),
+                                    font="Verdana 7")
 
         self.canvas.pack()
 
+    # рисование осей
     def drawAxis(self):
         halfW = round(self.size * self.width / 2)
         halfH = round(self.size * self.height / 2)
         self.canvas.create_line(0, halfH, halfW * 2, halfH, arrow=LAST, width=2)  # ox
-        self.canvas.create_line(halfW, 0, halfW, halfH * 2, arrow=FIRST, width=2)  # oy
+        self.canvas.create_line(halfW, 2, halfW, halfH * 2, arrow=FIRST, width=2)  # oy
+        self.canvas.create_text(halfW * 2 - self.size / 2, halfH + self.size / 2, text="x")
+        self.canvas.create_text(halfW - self.size / 2, self.size / 2, text="y")
 
+    # добавление точки
     def addDot(self, dot):
         self.dots.append(dot)
         self.drawDots()
 
+    # добавление массива точек
     def addDots(self, dots):
         self.dots += dots
         self.drawDots()
 
+    # удалить все точки
     def clear(self):
         self.dots = []
         self.drawDots()
 
+    # найти ближайшую точку
     def findDot(self, x, y):
         m = 10 ** 5
         d = None
@@ -62,6 +85,7 @@ class Grid:
             return None
         return d
 
+    # выбрать точку
     def selectDot(self, x, y):
         self.canvas.delete("all")
         self.drawGrid()
@@ -79,6 +103,7 @@ class Grid:
                                     self.y(dot.y) * self.size + r,
                                     fill=color)
 
+    # нарисовать / перерисовать точки
     def drawDots(self):
         if self.selected_dot is not None:
             self.selectDot(self.selected_dot.x, self.selected_dot.y)
@@ -94,6 +119,7 @@ class Grid:
                                     self.y(dot.y) * self.size + r,
                                     fill=dot.color)
 
+    # отобразить решение задачи
     def solutions(self):
         task = Task(self.dots)
         triangles = task.prepareTriangles()
@@ -113,7 +139,6 @@ class Grid:
             if dots[d3] >= 2:
                 res_triangles.append(triangle)
                 continue
-
 
         for triangle in res_triangles:
             print(triangle)

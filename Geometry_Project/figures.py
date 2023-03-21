@@ -1,10 +1,11 @@
+# структура точки
 class Dot:
     x = 0
     y = 0
     color = "red"
 
     def __hash__(self):
-        return hash(str(self.x) + str(self.y) + self.color)
+        return hash(str(self.x) + str(self.y))
 
     def __init__(self, x, y, color="red"):
         self.x = x
@@ -21,6 +22,7 @@ class Dot:
         return f"({self.x}, {self.y})"
 
 
+# структура отрезка
 class Segment:
     dots = ()
 
@@ -35,6 +37,7 @@ class Segment:
                (self.dots[1] == other.dots[0] and self.dots[0] == other.dots[1])
 
 
+# структура треугольника
 class Triangle:
     dots = []
 

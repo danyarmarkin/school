@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import scrolledtext
+from tkinter import scrolledtext, messagebox
 from tkinter.filedialog import askopenfilename
 
 from figures import *
@@ -8,6 +8,7 @@ from random import random
 
 class WorkSpace(Frame):
 
+    # функция очистки
     def clear(self, grid):
         grid.canvas.unbind('<Button-1>')
         grid.canvas.unbind('<Motion>')
@@ -22,6 +23,7 @@ class WorkSpace(Frame):
         self.activeDot = None
         self.config(width=400, height=720)
 
+    # функция добавления точек мышью
     def addDotsWithMouse(self, grid):
         self.clear(grid)
 
@@ -37,18 +39,22 @@ class WorkSpace(Frame):
             grid.canvas.unbind('<Button-1>')
 
         grid.canvas.bind('<Button-1>', onClick)
-        button = Button(self, text="Stop mouse binding", command=unbind)
+        button = Button(self, text="Завершить расстановку точек", command=unbind)
         button.grid(row=0, column=0)
         color.grid(row=1, column=0)
 
+    # функция добавления точек клавиатурой
     def addDotWithKeyboard(self, grid):
         self.clear(grid)
-        helpLabel = Label(self, text="Add coordinates with keyboard X, Y")
+        helpLabel = Label(self, text="Введите координаты с клавиатуры X и Y")
         inputX = Entry(self)
         inputY = Entry(self)
 
         def dot():
-            grid.addDot(Dot(float(inputX.get()), float(inputY.get()), "red"))
+            try:
+                grid.addDot(Dot(float(inputX.get().replace(",", ".")), float(inputY.get().replace(",", ".")), "red"))
+            except Exception:
+                messagebox.showerror("Error", "Введите координаты точки правильно")
 
         enter = Button(self, text="Add dot", command=dot)
         helpLabel.grid(row=0, column=0)
@@ -56,9 +62,10 @@ class WorkSpace(Frame):
         inputY.grid(row=2, column=0)
         enter.grid(row=3, column=0)
 
+    # функция добавления точек рандомом
     def addDotWithRandom(self, grid):
         self.clear(grid)
-        helpLabel = Label(self, text="Add amounts of dots")
+        helpLabel = Label(self, text="Введите количество точек (рекомедуется 50 - 150)")
         entry = Entry(self)
 
         def dot():
@@ -70,11 +77,12 @@ class WorkSpace(Frame):
                 dots.append(Dot(x, y, "red"))
             grid.addDots(dots)
 
-        enter = Button(self, text="Add dot", command=dot)
+        enter = Button(self, text="Добавить точки", command=dot)
         helpLabel.grid(row=0, column=0)
         entry.grid(row=1, column=0)
         enter.grid(row=2, column=0)
 
+    # функция добавления точек из файла
     @staticmethod
     def importDotsFromFile(grid):
         filename = askopenfilename(filetypes=(("TXT Files", "*.txt"), ("All files", "*.*")))
@@ -85,19 +93,21 @@ class WorkSpace(Frame):
             dots.append(Dot(x, y, "red"))
         grid.addDots(dots)
 
+    # функция показа точек
     def showDots(self, grid):
         self.clear(grid)
-        text = ""
-        for line in [str(i.x) + " " + str(i.y) + "\n" for i in grid.dots]:
-            text += line
-        scroll = scrolledtext.ScrolledText(self, width=200, height=700)
-        scroll.insert(INSERT, text)
-        scroll.configure(state='disabled')
-        scroll.grid(row=0, column=0)
+        scr = Scrollbar(self)
+        list = Listbox(self, yscrollcommand=scr.set, height=35)
+        for line in [str(i.x) + " " + str(i.y) for i in grid.dots]:
+            list.insert(END, line)
+        scr.pack(side=RIGHT, fill=Y)
+        list.pack(side=LEFT, fill=BOTH)
+        scr.config(command=list.yview)
 
+    # функция записи точек в файл
     def writeDotsToFile(self, grid):
         self.clear(grid)
-        helpLabel = Label(self, text="File name")
+        helpLabel = Label(self, text="Имя файла (файл будет находиться в папке проекта)")
         v = StringVar()
         v.set("output.txt")
         file_name = Entry(self, textvariable=v)
@@ -106,13 +116,14 @@ class WorkSpace(Frame):
             f = open(file_name.get(), "w")
             f.writelines([str(i.x) + " " + str(i.y) + "\n" for i in grid.dots])
             f.close()
-            helpLabel["text"] = "Done!"
+            helpLabel["text"] = "Готово!"
 
-        enter = Button(self, text="Write", command=write)
+        enter = Button(self, text="Записать в файл", command=write)
         helpLabel.grid(row=0, column=0)
         file_name.grid(row=1, column=0)
         enter.grid(row=2, column=0)
 
+    # функция показа меню редактирования
     def showEditMenu(self, grid, dot):
         grid.selected_dot = dot
         grid.drawDots()
@@ -124,7 +135,7 @@ class WorkSpace(Frame):
         if dot is None:
             return
 
-        helpLabel = Label(self, text="Change dot params")
+        helpLabel = Label(self, text="Изменение параметров точки")
         inputX = Entry(self)
         inputY = Entry(self)
         inputX.insert(END, str(dot.x))
@@ -139,14 +150,15 @@ class WorkSpace(Frame):
             dot.y = float(inputY.get())
             grid.drawDots()
 
-        apply_button = Button(self, text="Apply", command=apply)
-        remove_button = Button(self, text="Remove dot", command=remove)
+        apply_button = Button(self, text="Применить", command=apply)
+        remove_button = Button(self, text="Удалить точку", command=remove, background="red")
         helpLabel.grid(row=1, column=0)
         inputX.grid(row=2, column=0)
         inputY.grid(row=3, column=0)
         apply_button.grid(row=4, column=0)
         remove_button.grid(row=5, column=0)
 
+    # функция определения точек для редактирования
     def editDots(self, grid):
         self.clear(grid)
 
@@ -163,7 +175,6 @@ class WorkSpace(Frame):
         def onCLick(event):
             if self.activeDot is not None:
                 self.showEditMenu(grid, self.activeDot)
-
         grid.canvas.bind('<Motion>', onMotion)
         grid.canvas.bind('<Button-1>', onCLick)
 
@@ -172,5 +183,5 @@ class WorkSpace(Frame):
             grid.canvas.unbind('<Button-1>')
 
         grid.canvas.bind('<Motion>', onMotion)
-        button = Button(self, text="Stop mouse binding", command=unbind)
+        button = Button(self, text="Завершить редактирование", command=unbind)
         button.grid(row=0, column=0)
